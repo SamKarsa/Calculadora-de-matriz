@@ -24,10 +24,12 @@ def read_number(message: str) -> float:
     except ValueError:
       print("Tiene que ser un valor numerico")
 
-def read_option(message: str, valid_options: list[str]) -> str:
+def read_option(message: str, valid_options: list[str], normalize=None) -> str:
   """Verifica que la opcion elegida si sea correcta"""
   while True:
     option = input(message).strip()
+    if normalize:
+      option = normalize(option)
     if option in valid_options:
       return option
     print(f"La opcion ingresada no es valida. Las opciones validas son: {valid_options}")
@@ -213,6 +215,138 @@ def determinant(matriz: list[list[float]]) -> float:
 
 
 
+###FUNCION MULTIPLICACION, SUMA, RESTA Y DIVISION HADMARD
+def add_hadamard(matrizA: list[list[float]], matrizB: list[list[float]]) -> list[list[float]]:
+  """suma de matrices por el metodo hadamard"""
+  result = []
+  rowsA, colsA = dimensions(matrizA)
+  rowsB, colsB = dimensions(matrizB)
+
+  if colsA != colsB or rowsA !=rowsB :
+    raise ValueError("No se puede hacer la suma entre estas dos matrices, deben ternes las misma considicones")
+
+  for i in range(rowsA):
+    row = []
+    for j in range(colsA):
+      row.append(matrizA[i][j] + matrizB[i][j])
+    result.append(row)
+
+  return result
+
+def sub_hadamard(matrizA: list[list[float]], matrizB: list[list[float]]) -> list[list[float]]:
+  """resta de matrices por el metodo hadamard"""
+  result = []
+  rowsA, colsA = dimensions(matrizA)
+  rowsB, colsB = dimensions(matrizB)
+
+  if colsA != colsB or rowsA !=rowsB :
+    raise ValueError("No se puede hacer la resta entre estas dos matrices, deben ternes las misma considicones")
+
+  for i in range(rowsA):
+    row = []
+    for j in range(colsA):
+      row.append(matrizA[i][j] - matrizB[i][j])
+    result.append(row)
+
+  return result
+
+def mult_hadamard(matrizA: list[list[float]], matrizB: list[list[float]]) -> list[list[float]]:
+  """multiplicación de matrices por el metodo hadamard"""
+  result = []
+  rowsA, colsA = dimensions(matrizA)
+  rowsB, colsB = dimensions(matrizB)
+
+  if colsA != colsB or rowsA != rowsB:
+    raise ValueError("No se puede hacer la multiplicación: deben tener las mismas dimensiones")
+
+  for i in range(rowsA):
+    row = []
+    for j in range(colsA):
+      row.append(matrizA[i][j] * matrizB[i][j])
+    result.append(row)
+
+  return result
+
+def div_hadamard(matrizA: list[list[float]], matrizB: list[list[float]]) -> list[list[float]]:
+  """divición de matrices por el metodo hadamard"""
+  result = []
+  rowsA, colsA = dimensions(matrizA)
+  rowsB, colsB = dimensions(matrizB)
+
+  if colsA != colsB or rowsA !=rowsB :
+    raise ValueError("No se puede hacer la división: deben tener las mismas dimensiones")
+
+  for i in range(rowsA):
+    row = []
+    for j in range(colsA):
+      row.append(matrizA[i][j] / matrizB[i][j])
+    result.append(row)
+
+  return result
 
 
 
+###FUNCIÓN TRAZA
+def matrix_trace(matriz: list[list[float]]) -> float:
+    """Calcula la traza de una matriz."""
+    rows, cols = dimensions(matriz)
+
+    if rows != cols:
+      raise ValueError("La matriz no es cuadrada")
+
+    suma = 0
+    for i in range(rows):
+      suma += matriz[i][i]
+    return suma
+
+
+
+###INVERSA DE UNA MATRIZ
+#MATRIZ ADJUNTA
+def adjugate_matrix(matriz: list[list[float]]) -> list[list[float]]:
+    """Calcula la adjunta de una matriz."""
+
+    rows, cols = dimensions(matriz)
+
+    if rows != cols:
+        raise ValueError("La matriz no es cuadrada")
+
+    if rows == 1:
+        return [[1.0]]
+
+    cofactores = []
+
+    for i in range(rows):
+        row = []
+        for j in range(cols):
+            minor = determinant_minor_matrix(matriz, i, j)
+            det = determinant(minor)
+            signo = 1 if (i + j) % 2 == 0 else -1
+            cofactor = signo * det
+            row.append(cofactor)
+        cofactores.append(row)
+
+
+    adjunta = transpose(cofactores)
+
+    return adjunta
+
+#INVERSA DE UNA MATRIZ
+def inverse_matrix(matriz: list[list[float]]) -> list[list[float]]:
+    """Calcula la inversa de una matriz."""
+
+    rows, cols = dimensions(matriz)
+
+    if rows != cols:
+        raise ValueError("La matriz no es cuadrada")
+
+    det = determinant(matriz)
+
+    if det == 0:
+        raise ValueError("La matriz no tiene inversa (determinante = 0)")
+
+    adjunta = adjugate_matrix(matriz)
+
+    inv = scalar_mul(adjunta, 1/det)
+
+    return inv
